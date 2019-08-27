@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>   
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.1/react-router-dom.js"></script>
+    </head>
+
+<body>
+    <div id='root'></div>
+
+    <script type="text/babel">
+        const { Component } = React
+        const { render } = ReactDOM
+     //   const { Router, Route, Link} = ReactRouter
+        const API = 'https://acme-users-api-rev.herokuapp.com/api'
+        
+        const fetchUser = async ()=> {
+            const storage = window.localStorage;
+            const userId = storage.getItem('userId'); 
+            if(userId){
+                try {
+                return (await axios.get(`${API}/users/detail/${userId}`)).data;
+                }
+                catch(ex){
+                storage.removeItem('userId');
+                return fetchUser();
+                }
+            }
+            const user = (await axios.get(`${API}/users/random`)).data;
+            storage.setItem('userId', user.id);
+            return  user;
+        };
+        
+        const userId = window.localStorage.getItem('userId')
+        
+     
+
+        class App extends Component {
+            constructor(){
+                super()
+                    this.state = {
+                        vacations: [{startDate: '01/01/1995', endDate: '01/02/1995'}]
+                        // assuming that I will store the vacations in an array
+                        // should I be pulling this from the API? How do I know this is correct in the begining? An if function maybe? 
+                    }
+                this.log = this.log.bind(this)
+            }
+            async log() {
+            const vacations = []
+             await axios.get(`${API}/users/${userId}/vacations`)
+                    .then(response => vactions = response.data)
+                    .then(this.setState([vacations])
+            }
+            // WHERE ON EARTH DO I PUT THIS?
+            render() {
+                const {log} = this 
+                log()
+                return (
+                    <div>
+                        <Form/>
+                        <Log vacations={this.state.vacations}/>
+                    </div>
+                    )
+            }
+        }
+
+        class Form extends Component {
+            constructor() {
+                super() 
+                    this.state = {
+                        startDate: '',
+                        endDate: ''
+                    }
+                this.onChange = this.onChange.bind(this)
+                this.onClick = this.onClick.bind(this)
+            }
+            onChange(event) {
+                const {startDate, endDate} = this.state
+                const _state = this.state
+                this.setState({..._state, [event.target.name]: event.target.value})
+            }
+
+
+            async onClick() {
+                const {startDate, endDate} = this.state
+                console.log('hello')
+                await axios.post(`${API}/users/${userId}/vacations`,{startDate, endDate})
+                    .then(data => console.log(data))
+                    .catch(err => console.log(err))
+                    .then(axios.get(`${API}/users/${userId}/vacations`))
+                    
+                // reset form state 
+            }
+            // /api/users/:userId/vacations 
+            // WHERE DO I PUT IN THE URL? 
+            // What about and explination of async await and promisses
+
+            render() {
+                const {startDate, endDate} = this.state
+                const {onChange, onClick} = this
+                return(
+                    <form>
+                        <input type="date" name="startDate" onChange={onChange}/>
+                        <input type="date" name="endDate" onChange={onChange}/>
+                        <input type="button" onClick={onClick} value="Submit"/>
+                    </form>
+                    )
+            }
+        
+        }
+
+        class Log extends Component {
+            constructor({vacations}) {
+                super()
+                    this.state = {
+                        vacations
+                    }
+            }
+            
+            //how will I automatically rerender log? When the state is changed, is this automatic?   
+            render() {
+                const {vacations} = this.state
+                return(
+                    <ul>
+                    {vacations.map(vacation => <li key='1'>{`Start Date: ${vacation.startDate} End Date: ${vacation.endDate}`}</li>)}
+                    </ul>
+                )
+            }
+            // /api/users/:id/vacations 
+
+        }
+        
+        render(<App/>, root)
+
+    </script>
+
+    
+
+</body>
+
+
+</html>
