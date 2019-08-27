@@ -7,7 +7,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.1/react-router-dom.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/af.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     </head>
 
 <body>
@@ -18,6 +18,7 @@
         const { render } = ReactDOM
      // const { Router, Route, Link} = ReactRouter
         const API = 'https://acme-users-api-rev.herokuapp.com/api'
+    
         
         const fetchUser = async ()=> {
             const storage = window.localStorage;
@@ -56,7 +57,6 @@
                     .then(response => console.log(response))                    
                 // this.setState({vacations})
             }
-            // WHERE ON EARTH DO I PUT THIS?
             render() {
               
                 return (
@@ -72,7 +72,6 @@
             constructor(vacations) {
                 super() 
                     this.state = {
-                        vacations,
                         startDate: '',
                         endDate: ''
                     }
@@ -83,37 +82,29 @@
         
 
             onChange(event) {
-                const {startDate, endDate} = this.state
                 if(event.target.name === 'startDate'){
-                    let startDate = new Date(event.target.value)
+                    let startDate = moment(event.target.value).toDate()
                     this.setState({startDate})
                     console.log(this.state)
                 }
                 else if (event.target.name === 'endDate'){
-                    let endDate = new Date(event.target.value)
+                    let endDate = moment(event.target.value).toDate()
                     this.setState({endDate})
-                }   
-                
-                // this.setState({..._vacations, event.target.name: event.target.value})
+                    console.log(this.state)
+                }      
             }
-
-            
-
-
-            async onClick() {
+             async onClick() {
                 const {startDate, endDate} = this.state
                 console.log('hello')
-                await axios.post(`${API}/users/${userId}/vacations`,{startDate, endDate})
+                await axios.post(`${API}/users/${userId}/vacations`, {startDate, endDate})
                     .then(response => console.log(response))
                     .catch(err => console.log(err)) 
-
+                // Am I just in the wrong format? That's what it seems like
                 // How can you pass up the new vacation to the parent?
             }
-            // /api/users/:userId/vacations 
-            // WHERE DO I PUT IN THE URL? 
-            // What about and explination of async await and promisses
 
             render() {
+
                 const {startDate, endDate} = this.state
                 const {onChange, onClick} = this
                 return(
@@ -145,7 +136,7 @@
                     </ul>
                 )
             }
-            // /api/users/:id/vacations 
+            
 
         }
         
